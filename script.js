@@ -78,7 +78,6 @@ function displayMove(move) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 }
-displayMove(account1.movements);
 
 /*-----USING THE REDUCE METHOD TO SHOW BALANCE-----*/
 function calcDisplayBalance(movements) {
@@ -86,11 +85,10 @@ function calcDisplayBalance(movements) {
     return acc + cur;
   }, 0)}€`;
 }
-calcDisplayBalance(account1.movements);
 
-function calDisplaySummary(movements) {
+function calDisplaySummary(account) {
   /*------CALCULATE INCOME----------*/
-  const income = movements
+  const income = account.movements
     .filter(function (mov) {
       return mov > 0;
     })
@@ -100,7 +98,7 @@ function calDisplaySummary(movements) {
   labelSumIn.textContent = `${income}€`;
 
   /*----- CALCULATING THE OUTGOING TRANSACTION -----------*/
-  const output = movements
+  const output = account.movements
     .filter(move => move < 0)
     .reduce((acc, cur) => acc + cur, 0);
   labelSumOut.textContent = `${Math.abs(output)}€`;
@@ -108,12 +106,11 @@ function calDisplaySummary(movements) {
   /*----- CALCULATING THE INTREST -----------*/
   const interest = movements
     .filter(mov => mov > 0)
-    .map(deposit => deposit * 0.012)
+    .map(deposit => (deposit * account.interestRate) / 100)
     .filter(int => int >= 1)
     .reduce((acc, cur) => acc + cur);
   labelSumInterest.textContent = `${interest}€`;
 }
-calDisplaySummary(account1.movements);
 
 /*-----USING THE MAP METHOD TO CREATE USERNAME-----*/
 function createUsername(accounts) {
@@ -128,6 +125,43 @@ function createUsername(accounts) {
   });
 }
 createUsername(accounts);
+
+/*EVENT HANDLERS*/
+let currentAcccount;
+
+btnLogin.addEventListener('click', function (e) {
+  // prevent form from submitting
+  e.preventDefault();
+
+  /*---------IMPLEMENTING LOGIN--------*/
+  currentAcccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  console.log(currentAcccount);
+  if (currentAcccount?.pin === Number(inputLoginPin.value)) {
+    // Display welcome message
+    labelWelcome.textContent = `Welcome back ${
+      currentAcccount.owner.split(' ')[0]
+    }`;
+
+    // Display UI
+    containerApp.style.opacity = 100;
+
+    // Display Movements
+    displayMove(currentAcccount.movements);
+    // Display Balance
+    calcDisplayBalance(currentAcccount.movements);
+    // Display Summary
+    calDisplaySummary(currentAcccount);
+
+    // Clear input field
+    inputLoginPin.value = inputLoginUsername.value = '';
+
+    // losing the focus of the input
+    inputLoginPin.blur();
+    inputLoginUsername.blur();
+  }
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -313,7 +347,7 @@ const max = movements.reduce(function (acc, mov) {
 }, movements[0]);
 console.log(max);
 
-// coding challenge
+// coding challenge 2
 function calcAverageHumanAges(dogages) {
   const humanAges = dogages.map(function (value) {
     if (value < 3) {
@@ -340,6 +374,16 @@ function calcAverageHumanAges(dogages) {
 
 console.log(calcAverageHumanAges([5, 2, 4, 1, 15, 8, 3]));
 
+// Coding challenge 3
+const calcAverageHumanAges2 = dogages => {
+  const humanAges = dogages
+    .map(age => (age < 2 ? age * 2 : age + 16 * 4))
+    .filter(age => age >= 18)
+    .reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+  return humanAges;
+};
+console.log(calcAverageHumanAges2([5, 2, 4, 1, 15, 8, 3]));
+
 const depositInUsd = movements
   .filter(function (mov) {
     return mov > 0;
@@ -358,3 +402,14 @@ const DepositInUsd = movements
   .map(mov => mov * 1.1)
   .reduce((acc, cur) => acc + cur);
 console.log(DepositInUsd, typeof DepositInUsd);
+
+/*-------FIND METHOD --------*/
+const firstWithdrawal = movements.find(function (mov) {
+  return mov < 0;
+});
+console.log(typeof firstWithdrawal, firstWithdrawal, movements);
+
+// finding an object in an array with its property as a condition
+
+const account = accounts.find(acc => acc.owner === 'Jessica Davis');
+console.log(account);

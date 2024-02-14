@@ -171,6 +171,24 @@ btnLogin.addEventListener('click', function (e) {
   }
 });
 
+/*-------- UDING THE SOME METHOD TO IMPLEMENT LOAN FEATURE----------*/
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+
+  if (
+    amount > 0 &&
+    currentAcccount.movements.some(function (mov) {
+      return mov >= amount / 10;
+    })
+  ) {
+    // Add movement
+    currentAcccount.movements.push(amount);
+    updateUI(currentAcccount);
+    inputLoanAmount.value = '';
+  }
+});
+
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
   const amount = Number(inputTransferAmount.value);
@@ -463,3 +481,15 @@ console.log(typeof firstWithdrawal, firstWithdrawal, movements);
 
 const account = accounts.find(acc => acc.owner === 'Jessica Davis');
 console.log(account);
+
+/* ---------- SOME AND EVERY METHODS --------------*/
+// unlike the includes method, the some method can check for conditions
+
+const anyDeposits = movements.some(function (mov) {
+  return mov > 0;
+});
+
+console.log(anyDeposits);
+
+const DepositeAbove5000 = movements.some(mov => mov > 5000);
+console.log(DepositeAbove5000, movements);

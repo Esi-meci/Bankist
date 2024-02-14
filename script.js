@@ -61,10 +61,10 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-function displayMove(move) {
+function displayMove(move, sort = false) {
   containerMovements.innerHTML = '';
-
-  move.forEach(function (mov, i) {
+  const movs = sort ? move.slice().sort((a, b) => a - b) : move;
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal'; //ternary operator
     const html = `
     <div class="movements__row">
@@ -229,6 +229,13 @@ btnClose.addEventListener('click', function (e) {
     containerApp.style.opacity = 0;
   }
   inputClosePin.value = inputCloseUsername.value = '';
+});
+
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMove(currentAcccount.movements, !sorted);
+  sorted = !sorted;
 });
 
 /////////////////////////////////////////////////
@@ -493,3 +500,80 @@ console.log(anyDeposits);
 
 const DepositeAbove5000 = movements.some(mov => mov > 5000);
 console.log(DepositeAbove5000, movements);
+
+// The every method returns true if all the elements satisfied the condition
+const allDeposits = movements.every(function (mov) {
+  return mov > 0;
+});
+console.log(allDeposits);
+
+const allWithdraws = movements.every(mov => mov < 0);
+console.log(allWithdraws);
+
+// Seperate callback function
+const deposit = mov => mov > 0;
+
+console.log(movements.some(deposit));
+console.log(movements.every(deposit));
+
+/*-------FLAT AND FLATMAP METHODS-------*/
+const arr1 = [[1, 2, 3], [4, 5, 6], 7, 8];
+console.log(arr1.flat());
+
+const arrDeep = [
+  [1, [2, 3]],
+  [4, 5, 6],
+  [7, [5, [8]]],
+];
+console.log(arrDeep.flat());
+
+// the flat method take as a parameter how many step deep, it should flatten
+console.log(arrDeep.flat(5));
+
+// making an array of all the movements array in all the individual account
+const allAccountMovements = accounts.map(acc => acc.movements);
+// and flatting it into a single array
+const allAccountMovementsSingle = allAccountMovements.flat();
+console.log(allAccountMovementsSingle);
+// using the reduce method to get the total
+const overAllTotal = allAccountMovementsSingle.reduce(
+  (acc, cur) => acc + cur,
+  0
+);
+
+// Chaining all the above methods
+const overAllTotal2 = accounts
+  .map(acc => acc.movements)
+  .flat()
+  .reduce((acc, cur) => acc + cur, 0);
+
+console.log(overAllTotal2, overAllTotal);
+
+// FlatMAp combines a flat and a map method into one method, but the flatMap method only go one step deeper
+
+const overAllTotal3 = accounts.flatMap(acc => acc.movements);
+console.log(overAllTotal3);
+
+/* ------SORT METHOD ---------*/
+const owners = ['Jonas', 'Smith', 'jack', 'Martha'];
+console.log(owners.sort(), owners);
+
+// sorting numbers
+//in an ascending order
+console.log(movements);
+movements.sort((a, b) => {
+  if (a > b) return 1;
+  else return -1;
+});
+// OR
+movements.sort((a, b) => a - b);
+console.log(movements);
+
+//in a decending order
+movements.sort((a, b) => {
+  if (a > b) return -1;
+  else return 1;
+});
+// OR
+movements.sort((a, b) => b - a);
+console.log(movements);

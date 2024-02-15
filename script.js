@@ -72,7 +72,7 @@ function displayMove(move, sort = false) {
       i + 1
     } ${type}</div>
       <div class="movements__date">3 days ago</div>
-      <div class="movements__value">${mov}</div>
+      <div class="movements__value">${mov.toFixed(2)}€</div>
     </div>
     `; // template literal
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -86,7 +86,7 @@ function calcDisplayBalance(account) {
   }, 0);
   account.balance = balance;
 
-  labelBalance.textContent = `${balance}€`;
+  labelBalance.textContent = `${balance.toFixed(2)}€`;
 }
 
 function calDisplaySummary(account) {
@@ -98,13 +98,13 @@ function calDisplaySummary(account) {
     .reduce(function (acc, cur) {
       return acc + cur;
     });
-  labelSumIn.textContent = `${income}€`;
+  labelSumIn.textContent = `${income.toFixed(2)}€`;
 
   /*----- CALCULATING THE OUTGOING TRANSACTION -----------*/
   const output = account.movements
     .filter(move => move < 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumOut.textContent = `${Math.abs(output)}€`;
+  labelSumOut.textContent = `${Math.abs(output).toFixed(2)}€`;
 
   /*----- CALCULATING THE INTREST -----------*/
   const interest = movements
@@ -112,7 +112,7 @@ function calDisplaySummary(account) {
     .map(deposit => (deposit * account.interestRate) / 100)
     .filter(int => int >= 1)
     .reduce((acc, cur) => acc + cur);
-  labelSumInterest.textContent = `${interest}€`;
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 }
 
 /*-----USING THE MAP METHOD TO CREATE USERNAME-----*/
@@ -174,7 +174,7 @@ btnLogin.addEventListener('click', function (e) {
 /*-------- UDING THE SOME METHOD TO IMPLEMENT LOAN FEATURE----------*/
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
-  const amount = Number(inputLoanAmount.value);
+  const amount = Math.trunc(inputLoanAmount.value);
 
   if (
     amount > 0 &&
@@ -191,7 +191,7 @@ btnLoan.addEventListener('click', function (e) {
 
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
-  const amount = Number(inputTransferAmount.value);
+  const amount = +inputTransferAmount.value;
   const recieverAcc = accounts.find(function (acc) {
     return acc.username === inputTransferTo.value;
   });
@@ -215,7 +215,7 @@ btnClose.addEventListener('click', function (e) {
   // making the input field empty
   if (
     currentAcccount.username === inputCloseUsername.value &&
-    currentAcccount.pin === Number(inputClosePin.value)
+    currentAcccount.pin === +inputClosePin.value
   ) {
     const index = accounts.findIndex(function (acc) {
       return acc.username === currentAcccount.username;
@@ -577,3 +577,159 @@ movements.sort((a, b) => {
 // OR
 movements.sort((a, b) => b - a);
 console.log(movements);
+
+/* -------- creating and filling arrays ---------*/
+// this create an array with 7 empty space
+const x = new Array(7);
+const arrays = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+console.log(x);
+
+//fill
+x.fill(1, 3); // this fills the array starting from the no 3 index to the end with 1
+x.fill(2, 3, 5); // this fills the array starting from the no 3 index to the number 5 index with 2
+arrays.fill(16, 4, 8); //this replace the value in index 4 to 8 with 16
+console.log(arrays);
+
+//array.from
+console.log(Array.from({ length: 7 }, () => 1)); //this will create an array filled with 1 as the value with the lenght of 7
+console.log(Array.from({ length: 7 }, (cur, i) => i + 1)); // this creates an array of 1 to 6 by using it index
+
+// assignment
+// generating array with 100 dice rows
+const randomDice = Array.from({ length: 100 }, (_, i) =>
+  Math.trunc(Math.random(100) * i)
+);
+console.log(randomDice);
+
+// Creating an array out of the querySelectorAll items, which is a node list
+labelBalance.addEventListener('click', function () {
+  const movementsUIs = Array.from(
+    document.querySelectorAll('.movements__value')
+  );
+  console.log(movementsUIs.map(el => Number(el.textContent.replace('€', ''))));
+
+  // Better way
+  const movementsUI2 = [...document.querySelectorAll('.movements__value')].map(
+    el => Number(el.textContent.replace('€', ''))
+  );
+  console.log(movementsUI2);
+});
+
+// practing array methods
+// the sum of all the money deposited
+const bankDepositSum = accounts
+  .flatMap(acc => acc.movements)
+  .filter(tra => tra > 0)
+  .reduce((acc, cur) => acc + cur, 0);
+
+console.log(bankDepositSum);
+
+// 2. how many deposite there have been with atleast 1000 dollars
+const minDeposit = accounts
+  .flatMap(acc => acc.movements)
+  .filter(tra => tra >= 1000).length;
+
+// OR
+const minDeposit1 = accounts
+  .flatMap(acc => acc.movements)
+  .reduce((acc, cur) => (cur >= 1000 ? acc + 1 : acc), 0);
+
+console.log(minDeposit, minDeposit1);
+
+// 3.
+// calculating the deposits and the withdrawals on a go using reduce to return an object
+const sums = accounts
+  .flatMap(acc => acc.movements)
+  .reduce(
+    (acc, cur) => {
+      cur > 0 ? (acc.deposit += cur) : (acc.withdrawals += cur);
+      return acc;
+    },
+    { deposit: 0, withdrawals: 0 }
+  );
+console.log(sums);
+
+// 4.
+// create a function that convert any string to a title case
+function convertTitleCase(title) {
+  function capitalize(str) {
+    return str[0].toUpperCase() + str.slice(1);
+  }
+  const exceptions = ['a', 'an', 'and', 'the', 'but', 'or', 'on', 'in', 'with'];
+  const titleCase = title
+    .toLowerCase()
+    .split(' ')
+    .map(word => (exceptions.includes(word) ? word : capitalize(word)));
+  return capitalize(titleCase.join(' '));
+}
+
+console.log(
+  convertTitleCase(
+    'i am YouR Own forEver in earth i am an instrument for you to use'
+  )
+);
+console.log(
+  convertTitleCase(
+    'and am YouR Own forEver in earth i am an instrument for you to use'
+  )
+);
+
+// CODING CHALLENGE
+// 1. calculate the recommended food for each dogs and attach it to each object
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Maltida'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Micheal'] },
+];
+dogs.forEach(dog => (dog.recFood = Math.trunc(dog.weight ** 0.75 * 28)));
+
+// 2.find Sarah's dog and check if its eating too much or too little
+const sarahDogs = dogs.find(function (dog) {
+  return dog.owners.includes('Sarah');
+});
+console.log(sarahDogs);
+console.log(
+  ` Sarah's dog is eating ${
+    sarahDogs.curFood > sarahDogs.recFood ? 'too much' : 'just okay'
+  }`
+);
+
+// 3.
+const ownersEatTomuch = dogs
+  .filter(dog => dog.curFood > dog.recFood)
+  .flatMap(dog => dog.owners);
+
+console.log(ownersEatTomuch);
+
+const ownersEatToLittle = dogs
+  .filter(dog => dog.curFood < dog.recFood)
+  .flatMap(dog => dog.owners);
+
+console.log(ownersEatToLittle);
+
+// 4. create a string writing the names of the owners of dogs that eat too little, and too much
+// 'Maltida and Alice and Bob\'s dogs eat too much!
+// 'Sarah and John and Micheal\'s dogs eat too much!'
+
+console.log(`${ownersEatTomuch.join(' and ')} dogs eat too much!`);
+console.log(`${ownersEatToLittle.join(' and ')} dogs eat too little!`);
+
+// 5.
+const exactamount = dogs.some(dogs => dogs.curFood === dogs.recFood);
+console.log(exactamount, dogs);
+
+// 6 anyone eating an okay amount of food
+function checkEating(dog) {
+  return dog.curFood > dog.recFood * 0.9 && dog.curFood < dog.recFood * 1.1;
+}
+const okayAmount = dogs.some(checkEating);
+console.log(okayAmount);
+
+// 7. filter out all the dogs who is eating an okay amount of food
+const dogEatingOkay = dogs.filter(checkEating);
+console.log(dogEatingOkay);
+
+// 8. create a shallow array and sort it by the recommended food portion in an ascending order
+const dogsSorted = dogs.slice().sort((a, b) => a.recFood - b.recFood);
+console.log(dogsSorted);

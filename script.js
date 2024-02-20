@@ -37,9 +37,9 @@ const account2 = {
     '2019-12-25T06:04:23.907Z',
     '2020-01-25T14:18:46.235Z',
     '2020-02-05T16:33:06.386Z',
-    '2020-04-10T14:43:26.374Z',
-    '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
+    '2024-02-13T14:43:26.374Z',
+    '2024-02-19T18:49:59.371Z',
+    '2024-02-20T12:10:20.894Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -87,6 +87,37 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+function calDaysPassed(date1, date2) {
+  return Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+}
+
+function calDate(date) {
+  // const day = `${date.getDate()}`.padStart(2, 0);
+  // const month = `${date.getMonth()}`.padStart(2, 0);
+  // const year = date.getFullYear();
+  const hour = `${date.getHours()}`.padStart(2, 0);
+  const min = `${date.getMinutes()}`.padStart(2, 0);
+  const options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  };
+  const local = navigator.language;
+
+  const dateDiff = calDaysPassed(new Date(), date);
+  console.log();
+  if (dateDiff === 0) return `Today ${hour}:${min}`;
+  if (dateDiff === 1) return `Yesterday ${hour}:${min}`;
+  if (dateDiff <= 7 && dateDiff > 1)
+    return `${dateDiff} days ago ${hour}:${min}`;
+  else {
+    // return `${day}/${month}/${year}, ${hour}:${min}`;
+    return new Intl.DateTimeFormat(local, options).format(date);
+  }
+}
+
 function displayMove(acc, sort = false) {
   containerMovements.innerHTML = '';
 
@@ -97,12 +128,8 @@ function displayMove(acc, sort = false) {
     const type = mov > 0 ? 'deposit' : 'withdrawal'; //ternary operator
     //displaying the date of transaction
     const date = new Date(acc.movementsDates[i]);
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = `${date.getMonth()}`.padStart(2, 0);
-    const year = date.getFullYear();
-    const hour = `${date.getHours()}`.padStart(2, 0);
-    const min = `${date.getMinutes()}`.padStart(2, 0);
-    const displyDate = `${day}/${month}/${year}, ${hour}:${min}`;
+
+    const displyDate = calDate(date);
 
     const html = `
     <div class="movements__row">
@@ -196,13 +223,32 @@ btnLogin.addEventListener('click', function (e) {
   console.log(currentAcccount);
 
   // displaying current date upon login
+
   const now = new Date();
-  const day = `${now.getDate()}`.padStart(2, 0);
-  const month = `${now.getMonth()}`.padStart(2, 0);
-  const year = now.getFullYear();
-  const hour = `${now.getHours()}`.padStart(2, 0);
-  const min = `${now.getMinutes()}`.padStart(2, 0);
-  labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+  /*----------- USING INTERNATIONAL FORMATTER API------------*/
+
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    weekday: 'short',
+  };
+
+  // getting their local language from thier browser
+  const local = navigator.language;
+  console.log(local);
+
+  // labelDate.textContent = new Intl.DateTimeFormat('en-US', options).format(now);
+  labelDate.textContent = new Intl.DateTimeFormat(local, options).format(now);
+
+  // const day = `${now.getDate()}`.padStart(2, 0);
+  // const month = `${now.getMonth()}`.padStart(2, 0);
+  // const year = now.getFullYear();
+  // const hour = `${now.getHours()}`.padStart(2, 0);
+  // const min = `${now.getMinutes()}`.padStart(2, 0);
+  // labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
 
   if (currentAcccount?.pin === Number(inputLoginPin.value)) {
     // Display welcome message
@@ -224,7 +270,7 @@ btnLogin.addEventListener('click', function (e) {
   }
 });
 
-/*-------- UDING THE SOME METHOD TO IMPLEMENT LOAN FEATURE----------*/
+/*-------- USING THE SOME METHOD TO IMPLEMENT LOAN FEATURE----------*/
 btnLoan.addEventListener('click', function (e) {
   e.preventDefault();
   const amount = Math.trunc(inputLoanAmount.value);

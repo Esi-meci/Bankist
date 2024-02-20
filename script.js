@@ -130,6 +130,10 @@ function displayMove(acc, sort = false) {
     const date = new Date(acc.movementsDates[i]);
 
     const displyDate = calDate(date);
+    const formattedMov = new Intl.NumberFormat(navigator.language, {
+      style: 'currency',
+      currency: 'USD',
+    }).format(mov);
 
     const html = `
     <div class="movements__row">
@@ -137,7 +141,7 @@ function displayMove(acc, sort = false) {
       i + 1
     } ${type}</div>
       <div class="movements__date">${displyDate}</div>
-      <div class="movements__value">${mov.toFixed(2)}€</div>
+      <div class="movements__value">${formattedMov}</div>
     </div>
     `; // template literal
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -225,7 +229,7 @@ btnLogin.addEventListener('click', function (e) {
   // displaying current date upon login
 
   const now = new Date();
-  /*----------- USING INTERNATIONAL FORMATTER API------------*/
+  /*----------- USING INTERNATIONAL FORMATTER API ------------*/
 
   const options = {
     year: 'numeric',

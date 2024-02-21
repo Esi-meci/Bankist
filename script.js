@@ -212,13 +212,36 @@ function updateUI(curaccount) {
   calDisplaySummary(curaccount);
 }
 
+/*----------LOGOUT TIMER ----------------*/
+function startLogOutTimer() {
+  // set the time to 5 minutes
+  let time = 120;
+
+  const timer = setInterval(function () {
+    const min = `${Math.trunc(time / 60)}`.padStart(2, 0);
+    const sec = `${Math.trunc(time % 60)}`.padStart(2, 0);
+    labelTimer.textContent = `${min}:${sec}`;
+
+    // Stop the timer by using clearInterval
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = 'Log in to get started';
+      containerApp.style.opacity = 0;
+    }
+    // Decress the timer
+    time--;
+  }, 1000);
+
+  return timer;
+}
+
 /*EVENT HANDLERS*/
-let currentAcccount;
+let currentAcccount, timer;
 
 // FAKE ALWAYS LOGGED IN
-currentAcccount = account1;
-updateUI(currentAcccount);
-containerApp.style.opacity = 100;
+// currentAcccount = account1;
+// updateUI(currentAcccount);
+// containerApp.style.opacity = 100;
 
 btnLogin.addEventListener('click', function (e) {
   // prevent form from submitting
@@ -275,6 +298,8 @@ btnLogin.addEventListener('click', function (e) {
     // losing the focus of the input
     inputLoginPin.blur();
     inputLoginUsername.blur();
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -299,6 +324,10 @@ btnLoan.addEventListener('click', function (e) {
       updateUI(currentAcccount);
       inputLoanAmount.value = '';
     }, 3000);
+
+    // Reset logout timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -328,6 +357,10 @@ btnTransfer.addEventListener('click', function (e) {
 
     // updating the UI
     updateUI(currentAcccount);
+
+    // Reset Timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 

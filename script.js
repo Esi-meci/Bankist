@@ -118,6 +118,13 @@ function calDate(date) {
   }
 }
 
+function formatcur(mov) {
+  return new Intl.NumberFormat(currentAcccount.locale, {
+    style: 'currency',
+    currency: currentAcccount.currency,
+  }).format(mov);
+}
+
 function displayMove(acc, sort = false) {
   containerMovements.innerHTML = '';
 
@@ -130,10 +137,7 @@ function displayMove(acc, sort = false) {
     const date = new Date(acc.movementsDates[i]);
 
     const displyDate = calDate(date);
-    const formattedMov = new Intl.NumberFormat(navigator.language, {
-      style: 'currency',
-      currency: 'USD',
-    }).format(mov);
+    const formatt = formatcur(mov);
 
     const html = `
     <div class="movements__row">
@@ -141,7 +145,7 @@ function displayMove(acc, sort = false) {
       i + 1
     } ${type}</div>
       <div class="movements__date">${displyDate}</div>
-      <div class="movements__value">${formattedMov}</div>
+      <div class="movements__value">${formatt}</div>
     </div>
     `; // template literal
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -155,7 +159,7 @@ function calcDisplayBalance(account) {
   }, 0);
   account.balance = balance;
 
-  labelBalance.textContent = `${balance.toFixed(2)}€`;
+  labelBalance.textContent = formatcur(balance);
 }
 
 function calDisplaySummary(account) {
@@ -167,13 +171,13 @@ function calDisplaySummary(account) {
     .reduce(function (acc, cur) {
       return acc + cur;
     });
-  labelSumIn.textContent = `${income.toFixed(2)}€`;
+  labelSumIn.textContent = formatcur(income);
 
   /*----- CALCULATING THE OUTGOING TRANSACTION -----------*/
   const output = account.movements
     .filter(move => move < 0)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumOut.textContent = `${Math.abs(output).toFixed(2)}€`;
+  labelSumOut.textContent = formatcur(Math.abs(output));
 
   /*----- CALCULATING THE INTREST -----------*/
   const interest = account.movements
@@ -181,7 +185,7 @@ function calDisplaySummary(account) {
     .map(deposit => (deposit * account.interestRate) / 100)
     .filter(int => int >= 1)
     .reduce((acc, cur) => acc + cur);
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = formatcur(interest);
 }
 
 /*-----USING THE MAP METHOD TO CREATE USERNAME-----*/
@@ -285,15 +289,16 @@ btnLoan.addEventListener('click', function (e) {
       return mov >= amount / 10;
     })
   ) {
-    // Add movement
-    currentAcccount.movements.push(amount);
+    setTimeout(function () {
+      // Add movement
+      currentAcccount.movements.push(amount);
+      // Adding the transaction date
+      currentAcccount.movementsDates.push(new Date());
 
-    // Adding the transaction date
-    currentAcccount.movementsDates.push(new Date());
-
-    // updating the UI
-    updateUI(currentAcccount);
-    inputLoanAmount.value = '';
+      // updating the UI
+      updateUI(currentAcccount);
+      inputLoanAmount.value = '';
+    }, 3000);
   }
 });
 
@@ -360,7 +365,7 @@ btnSort.addEventListener('click', function (e) {
 
 /////////////////////////////////////////////////
 
-/*-----SLICE------*/
+/*---------------- SLICE ------------*/
 let arr = ['a', 'b', 'c', 'd', 'e'];
 console.log(arr.slice(2, 4), arr); // the ending parameter is not included in the output
 console.log(arr.slice(-2)); //this starts from the back
